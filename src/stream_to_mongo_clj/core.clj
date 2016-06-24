@@ -1,32 +1,23 @@
 (ns stream-to-mongo-clj.core
   [:require
-    [clojure.string]
+    [clojure.string :as str]
     [clojure.java.io :as io]]
   (:gen-class))
 
-(def batch-size 3)
+(def config (atom {}))
 
-; (def batch (atom []))
+(defn set-config [new-config]
+  (reset! config new-config))
 
-; (defn append-to-batch [doc]
-;   (reset! batch (concat @batch [doc])))
+(set-config {:batch-size 2, :file-path "hello.txt"})
 
-
-; works but ugly
 (defn read-file []
-  (with-open [rdr (io/reader "hello.txt")]
+  (with-open [rdr (io/reader (:file-path @config))]
     (let [lines (line-seq rdr)]
-      (join " " (take batch-size lines)))))
+      (read-batch lines))))
 
-; dont not work but nice
-; (defn read-file []
-;   (with-open [rdr (io/reader "hello.txt")]
-;     (get-next-batch rdr)))
-;
-; (defn get-next-batch [rdr]
-;   (let [lines (line-seq rdr)]
-;     (take batch-size lines))))
-
+(defn read-batch [lines]
+  (str/join " " (take (:batch-size @config) lines)))
 
 (defn -main
   "I don't do a whole lot ... yet."
