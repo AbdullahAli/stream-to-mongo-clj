@@ -11,13 +11,18 @@
 
 (set-config {:batch-size 2, :file-path "hello.txt"})
 
-(defn read-file []
-  (with-open [rdr (io/reader (:file-path @config))]
-    (let [lines (line-seq rdr)]
-      (read-batch lines))))
-
 (defn read-batch [lines]
-  (str/join " " (take (:batch-size @config) lines)))
+  (println (str/join " " lines)))
+
+(defn do-something-interesting [batch]
+  (println batch))
+
+(defn read-file []
+  (with-open [reader (io/reader (:file-path @config))]
+    (->> (line-seq reader)
+      (partition-all (:batch-size @config))
+      (#(doseq [batch %]
+          (do-something-interesting batch))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
